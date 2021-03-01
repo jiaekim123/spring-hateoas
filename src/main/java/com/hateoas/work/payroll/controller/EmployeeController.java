@@ -1,6 +1,7 @@
 package com.hateoas.work.payroll.controller;
 
 import com.hateoas.work.payroll.entity.Employee;
+import com.hateoas.work.payroll.entity.EmployeeModelAssembler;
 import com.hateoas.work.payroll.exception.EmployeeNotFoundException;
 import com.hateoas.work.payroll.repository.EmployeeRepository;
 import org.springframework.hateoas.CollectionModel;
@@ -14,17 +15,17 @@ import java.util.stream.Collectors;
 @RestController
 public class EmployeeController {
     private final EmployeeRepository reposiroty;
+    private final EmployeeModelAssembler assembler;
 
-    EmployeeController(EmployeeRepository repository){
+    EmployeeController(EmployeeRepository repository, EmployeeModelAssembler assembler){
         this.reposiroty = repository;
+        this.assembler = assembler;
     }
 
     @GetMapping("/employees")
     public CollectionModel<EntityModel<Employee>> all(){
         List<EntityModel<Employee>> employees = reposiroty.findAll().stream()
-                .map(employee -> EntityModel.of(employee,
-                        linkTo(methodOn(EmployeeController.class).one(employee.getId())).withSelfRel(),
-                        linkTo(methodOn(EmployeeController.class).all()).withRel("employees")))
+                .map(assembler::toModel)
                 .collect(Collectors.toList());
         return CollectionModel.of(employees, linkTo(methodOn(EmployeeController.class).all()).withSelfRel());
     }
@@ -38,8 +39,7 @@ public class EmployeeController {
     public EntityModel<Employee> one(@PathVariable Long id){
         Employee employee = reposiroty.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException(id));
-        return EntityModel.of(employee, linkTo(methodOn(EmployeeController.class).one(id)).withSelfRel(),
-                linkTo(methodOn(EmployeeController.class).all()).withRel("employees"));
+        return assembler.toModel(employee);
     }
 
     @PutMapping("/employees/{id}")
