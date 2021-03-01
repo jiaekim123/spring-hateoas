@@ -8,11 +8,15 @@ import java.util.Objects;
 @Entity
 public class Employee {
     private @Id @GeneratedValue Long id;
-    private String name;
+//    private String name;
+    // name -> firstName, lastName으로 변경되었을 경우
+    private String firstName;
+    private String lastName;
     private String role;
 
-    public Employee(String name, String role) {
-        this.name = name;
+    public Employee(String firstName, String lastName, String role) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.role = role;
     }
 
@@ -24,7 +28,7 @@ public class Employee {
     }
 
     public String getName() {
-        return name;
+        return firstName + " " + lastName;
     }
 
     public String getRole() {
@@ -36,11 +40,39 @@ public class Employee {
     }
 
     public void setName(String name) {
-        this.name = name;
+        String[] parts = name.split(" ");
+        this.firstName = parts[0];
+        this.lastName = parts[1];
     }
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    @Override
+    public String toString() {
+        return "Employee{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", role='" + role + '\'' +
+                '}';
     }
 
     @Override
@@ -49,21 +81,13 @@ public class Employee {
         if (o == null || getClass() != o.getClass()) return false;
         Employee employee = (Employee) o;
         return Objects.equals(id, employee.id) &&
-                Objects.equals(name, employee.name) &&
+                Objects.equals(firstName, employee.firstName) &&
+                Objects.equals(lastName, employee.lastName) &&
                 Objects.equals(role, employee.role);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, role);
-    }
-
-    @Override
-    public String toString() {
-        return "Employee{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", role='" + role + '\'' +
-                '}';
+        return Objects.hash(id, firstName, lastName, role);
     }
 }
